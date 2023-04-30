@@ -116,7 +116,6 @@ function App() {
 
   function addSegment(e) {
     e.preventDefault();
-    setSegmentValue("");
     if (segmentType === segmentOptions[0]) {
       setSegments((prev) => [
         ...prev,
@@ -126,9 +125,11 @@ function App() {
           submenu: [],
         },
       ]);
+      setSegmentValue("");
       return;
     }
     if (segmentType === segmentOptions[1]) {
+      console.log("here");
       const lastItem = segments[segments.length - 1];
       if (!lastItem) return alert("Please select Main segment First");
 
@@ -136,8 +137,8 @@ function App() {
         ...lastItem,
         submenu: [...lastItem?.submenu, { id: uniqid(), text: segmentValue }],
       };
-      const updateSegments = [...prev.slice(0, prev.length - 1), updatedLastItem];
-
+      const updateSegments = [...segments.slice(0, segments.length - 1), updatedLastItem];
+      setSegmentValue("");
       setSegments(updateSegments);
     }
   }
