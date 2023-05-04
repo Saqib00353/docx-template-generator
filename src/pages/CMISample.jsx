@@ -57,7 +57,7 @@ function CMISample() {
 
   const generateDocument = () => {
     const xhr = new XMLHttpRequest();
-    xhr.open("GET", fileUrl, true);
+    xhr.open("GET", "https://www.url.com", true);
     xhr.responseType = "arraybuffer";
 
     const data = {
