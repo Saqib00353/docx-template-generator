@@ -98,7 +98,7 @@ function CMISample() {
         const doc = new Docxtemplater().attachModule(new ImageModule(imageOpts)).loadZip(zip);
 
         doc.setData(data);
-        doc.render({ Image: "/favicon-32x32.png" });
+        doc.render();
         const output = doc.getZip().generate({ type: "blob", compression: "DEFLATE" });
         FileSaver.saveAs(output, "codesandbox-output.docx");
       })
