@@ -18,7 +18,6 @@ import {
   ListItem,
   RadioGroup,
   InputLabel,
-  Input,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import Textarea from "@mui/joy/Textarea";
@@ -27,6 +26,8 @@ import Docxtemplater from "docxtemplater";
 import PizZip from "pizzip";
 import FileSaver from "file-saver";
 import { useLocation } from "react-router-dom";
+import ImageModule from "docxtemplater-image-module-free";
+import axios from "axios";
 
 function CMISample() {
   const location = useLocation();
@@ -35,6 +36,7 @@ function CMISample() {
   const [segments, setSegments] = useState([]);
   const [files, setFiles] = useState([]);
   const [fileUrl, setFileUrl] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
   const [segmentType, setSegmentType] = useState(segmentOptions[0]);
   const [segmentValue, setSegmentValue] = useState("");
   const [isVolume, setIsVolume] = useState(false);
@@ -44,6 +46,7 @@ function CMISample() {
   const [toYear, setToYear] = useState("");
   const [baseYear, setBaseYear] = useState("");
   const [keyword, setKeyword] = useState("");
+  const [uploadedImages, setUploadedImages] = useState([]);
 
   useEffect(() => {
     if (location.state) {
@@ -55,11 +58,7 @@ function CMISample() {
     }
   }, []);
 
-  const generateDocument = () => {
-    const xhr = new XMLHttpRequest();
-    xhr.open("GET", "https://www.url.com", true);
-    xhr.responseType = "arraybuffer";
-
+  function generateDocument() {
     const data = {
       Volume: volume,
       Revenue: revenue,
@@ -77,19 +76,36 @@ function CMISample() {
       })),
     };
 
-    xhr.onload = () => {
-      const templatecontent = xhr.response;
-      const zip = new PizZip(templatecontent);
-      const doc = new Docxtemplater();
-      doc.loadZip(zip);
+    axios
+      .get(menuOptions[0].url, {
+        responseType: "arraybuffer",
+      })
+      .then((res) => {
+        const imageOpts = {
+          centered: false,
+          getImage: function (tagValue) {
+            axios
+              .get(tagValue, {
+                responseType: "arraybuffer",
+              })
+              .then((res) => res.data)
+              .catch((e) => console.log(e));
+          },
+          getSize: () => [150, 150],
+        };
+        const templatecontent = res.data;
+        const zip = new PizZip(templatecontent);
+        const doc = new Docxtemplater().attachModule(new ImageModule(imageOpts)).loadZip(zip);
 
-      doc.setData(data);
-      doc.render();
-      const output = doc.getZip().generate({ type: "blob" });
-      FileSaver.saveAs(output, "output.docx");
-    };
-    xhr.send();
-  };
+        doc.setData(data);
+        doc.render({ Image: "/favicon-32x32.png" });
+        const output = doc.getZip().generate({ type: "blob", compression: "DEFLATE" });
+        FileSaver.saveAs(output, "codesandbox-output.docx");
+      })
+      .catch((er) => {
+        console.log(er);
+      });
+  }
 
   const deleteMenu = ({ type, item, subItem }) => {
     if (type.menuType === "main-menu") {
@@ -152,7 +168,9 @@ function CMISample() {
     }
   }
 
-  const isDisabled = !(revenue && fromYear && toYear && baseYear && keyword && (isGlobal || isNordic) && fileUrl);
+  console.log("images =>", uploadedImages);
+
+  const isDisabled = !(revenue && fromYear && toYear && baseYear && keyword && (isGlobal || isNordic));
 
   return (
     <Box p={4}>
@@ -165,8 +183,8 @@ function CMISample() {
             <InputLabel>Template*</InputLabel>
             <Autocomplete
               disablePortal
-              options={files.map((i) => i.filename)}
-              value={files.find((i) => i.url === fileUrl)?.filename || ""}
+              options={[...files.map((i) => i.filename), menuOptions[0].filename]}
+              value={files.find((i) => i.url === fileUrl)?.filename || "March 23 Sample_Report"}
               sx={{ width: "400px" }}
               onChange={(_, newValue) => setFileUrl(files.find((i) => i.filename === newValue)?.url)}
               getOptionLabel={(option) => (typeof option === "number" ? option.toString() : option)}
@@ -317,7 +335,30 @@ function CMISample() {
           </Grid>
         </Grid>
         <Grid item>
-          <Input type="file" />
+          <input
+            type="file"
+            multiple
+            onChange={(e) => {
+              const files = e.target.files;
+              const images = [];
+
+              for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const reader = new FileReader();
+
+                reader.onload = function (event) {
+                  const imageUrl = event.target.result;
+                  images.push(imageUrl);
+
+                  if (images.length === files.length) {
+                    setUploadedImages(images);
+                  }
+                };
+
+                reader.readAsDataURL(file);
+              }
+            }}
+          />
         </Grid>
         <Grid item>
           <Button variant="contained" disabled={isDisabled} type="submit" onClick={generateDocument}>
