@@ -28,7 +28,7 @@ function Login() {
     };
 
     return (
-        <Box sx={{ maxWidth: 300, margin: 'auto' }}>
+        <Box sx={{ maxWidth: 300, display: "flex", justifyContent: "center", alignItems: "center", gap: "1rem", flexDirection: "column", height: "100vh" , margin:'auto' }}>
             <Typography variant="h5" sx={{ marginBottom: 2 }}>
                 Login
             </Typography>
