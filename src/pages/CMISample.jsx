@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable no-unsafe-optional-chaining */
 import { useEffect, useState } from "react";
 import { isGlobalMenu, isNordic, segmentOptions, menuOptions } from "./../data/data";
@@ -38,7 +39,7 @@ function CMISample() {
   const [segments, setSegments] = useState([]);
   const [files, setFiles] = useState([]);
   const [fileUrl, setFileUrl] = useState("");
-  // const [imageUrl, setImageUrl] = useState("");/
+  const [imageUrl, setImageUrl] = useState("");
   const [segmentType, setSegmentType] = useState(segmentOptions[0]);
   const [segmentValue, setSegmentValue] = useState("");
   const [isVolume, setIsVolume] = useState(false);
@@ -48,7 +49,7 @@ function CMISample() {
   const [toYear, setToYear] = useState("");
   const [baseYear, setBaseYear] = useState("");
   const [keyword, setKeyword] = useState("");
-  // const [uploadedImages, setUploadedImages] = useState([]);
+  const [uploadedImages, setUploadedImages] = useState([]);
 
   useEffect(() => {
     // const files2 = JSON.parse(localStorage.getItem('files2'));
@@ -62,7 +63,6 @@ function CMISample() {
     }
   }, []);
 
-  console.log("", `/${files[0]?.url}--`, menuOptions[0].url, location.state[0].webkitRelativePath);
 
   function generateDocument() {
     const data = {
