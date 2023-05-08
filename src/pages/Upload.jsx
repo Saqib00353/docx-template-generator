@@ -7,6 +7,8 @@ function Upload() {
   const [files, setFiles] = useState();
   function handleFileSelect(e) {
     const { files } = e.target;
+    localStorage.setItem('files', JSON.stringify(files));
+
     setFiles(files);
   }
   return (
@@ -16,7 +18,7 @@ function Upload() {
           id="raised-button-file"
           type="file"
           webkitdirectory="true"
-          mozdirectory="true"
+          // mozdirectory="true"
           multiple
           // accept="image/*"
           onChange={handleFileSelect}

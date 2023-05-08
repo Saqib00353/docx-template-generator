@@ -1,3 +1,4 @@
+/* eslint-disable no-unsafe-optional-chaining */
 import { useEffect, useState } from "react";
 import { isGlobalMenu, isNordic, segmentOptions, menuOptions } from "./../data/data";
 import {
@@ -25,18 +26,19 @@ import uniqid from "uniqid";
 import Docxtemplater from "docxtemplater";
 import PizZip from "pizzip";
 import FileSaver from "file-saver";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import ImageModule from "docxtemplater-image-module-free";
 import axios from "axios";
 
 function CMISample() {
   const location = useLocation();
+  const navigate = useNavigate();
   const [isGlobal, setIsGlobal] = useState("");
   const [menu, setMenu] = useState([]);
   const [segments, setSegments] = useState([]);
   const [files, setFiles] = useState([]);
   const [fileUrl, setFileUrl] = useState("");
-  const [imageUrl, setImageUrl] = useState("");
+  // const [imageUrl, setImageUrl] = useState("");/
   const [segmentType, setSegmentType] = useState(segmentOptions[0]);
   const [segmentValue, setSegmentValue] = useState("");
   const [isVolume, setIsVolume] = useState(false);
@@ -46,9 +48,11 @@ function CMISample() {
   const [toYear, setToYear] = useState("");
   const [baseYear, setBaseYear] = useState("");
   const [keyword, setKeyword] = useState("");
-  const [uploadedImages, setUploadedImages] = useState([]);
+  // const [uploadedImages, setUploadedImages] = useState([]);
 
   useEffect(() => {
+    // const files2 = JSON.parse(localStorage.getItem('files2'));
+    // console.log("files2", files2);
     if (location.state) {
       let uploadedFiles = [];
       for (let i = 0; i < location.state.length; i++) {
@@ -57,6 +61,8 @@ function CMISample() {
       setFiles(uploadedFiles);
     }
   }, []);
+
+  console.log("", `/${files[0]?.url}--`, menuOptions[0].url, location.state[0].webkitRelativePath);
 
   function generateDocument() {
     const data = {
@@ -77,7 +83,8 @@ function CMISample() {
     };
 
     axios
-      .get(menuOptions[0].url, {
+    // menuOptions[0].ulr
+      .get(location.state[0].webkitRelativePath, {
         responseType: "arraybuffer",
       })
       .then((res) => {
@@ -100,7 +107,7 @@ function CMISample() {
         doc.setData(data);
         doc.render();
         const output = doc.getZip().generate({ type: "blob", compression: "DEFLATE" });
-        FileSaver.saveAs(output, "codesandbox-output.docx");
+        FileSaver.saveAs(output, `${keyword}-codesandbox-output.docx`);
       })
       .catch((er) => {
         console.log(er);
@@ -117,25 +124,25 @@ function CMISample() {
     if (type.menuType === "sub-menu") {
       type.listType === "segment"
         ? setSegments((prev) =>
-            prev.map((menu) => {
-              if (menu.id === item.id) {
-                const updatedSubmenu = menu.submenu.filter((st) => st.id !== subItem.id);
-                console.log(updatedSubmenu);
-                return { ...menu, submenu: updatedSubmenu };
-              }
-              return menu;
-            })
-          )
+          prev.map((menu) => {
+            if (menu.id === item.id) {
+              const updatedSubmenu = menu.submenu.filter((st) => st.id !== subItem.id);
+              console.log(updatedSubmenu);
+              return { ...menu, submenu: updatedSubmenu };
+            }
+            return menu;
+          })
+        )
         : setMenu((prev) =>
-            prev.map((menu) => {
-              if (menu.id === item.id) {
-                const updatedSubmenu = menu.submenu.filter((st) => st.id !== subItem.id);
-                console.log(updatedSubmenu);
-                return { ...menu, submenu: updatedSubmenu };
-              }
-              return menu;
-            })
-          );
+          prev.map((menu) => {
+            if (menu.id === item.id) {
+              const updatedSubmenu = menu.submenu.filter((st) => st.id !== subItem.id);
+              console.log(updatedSubmenu);
+              return { ...menu, submenu: updatedSubmenu };
+            }
+            return menu;
+          })
+        );
     }
   };
 
@@ -168,12 +175,20 @@ function CMISample() {
     }
   }
 
-  console.log("images =>", uploadedImages);
+  function handleLogout() {
+    // remove user from local storage
+    localStorage.removeItem("user");
+    // navigate to login page
+    navigate("/login");
+  }
 
   const isDisabled = !(revenue && fromYear && toYear && baseYear && keyword && (isGlobal || isNordic));
 
   return (
     <Box p={4}>
+      <Button variant="contained" component="span" onClick={handleLogout}>
+        Logout
+      </Button>
       <Typography component="h1" variant="h4" marginBottom={2} textAlign="center">
         CMI Sample Report Generator
       </Typography>
@@ -334,7 +349,7 @@ function CMISample() {
             <Textarea placeholder="(One at a line OR Coma seprated)" sx={{ width: "500px", minHeight: "200px" }} />
           </Grid>
         </Grid>
-        <Grid item>
+        {/* <Grid item>
           <input
             type="file"
             multiple
@@ -359,7 +374,7 @@ function CMISample() {
               }
             }}
           />
-        </Grid>
+        </Grid> */}
         <Grid item>
           <Button variant="contained" disabled={isDisabled} type="submit" onClick={generateDocument}>
             Download Document
