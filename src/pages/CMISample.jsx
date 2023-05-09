@@ -28,8 +28,8 @@ import Docxtemplater from "docxtemplater";
 import PizZip from "pizzip";
 import FileSaver from "file-saver";
 import { useLocation, useNavigate } from "react-router-dom";
-import ImageModule from "docxtemplater-image-module-free";
-import axios from "axios";
+// import ImageModule from "docxtemplater-image-module-free";
+// import axios from "axios";
 
 function CMISample() {
   const location = useLocation();
@@ -38,8 +38,9 @@ function CMISample() {
   const [menu, setMenu] = useState([]);
   const [segments, setSegments] = useState([]);
   const [files, setFiles] = useState([]);
-  const [fileUrl, setFileUrl] = useState("");
-  const [imageUrl, setImageUrl] = useState("");
+  const [selectedFile, setSelectedFile] = useState()
+  // const [fileUrl, setFileUrl] = useState("");
+  // const [imageUrl, setImageUrl] = useState("");
   const [segmentType, setSegmentType] = useState(segmentOptions[0]);
   const [segmentValue, setSegmentValue] = useState("");
   const [isVolume, setIsVolume] = useState(false);
@@ -49,22 +50,19 @@ function CMISample() {
   const [toYear, setToYear] = useState("");
   const [baseYear, setBaseYear] = useState("");
   const [keyword, setKeyword] = useState("");
-  const [uploadedImages, setUploadedImages] = useState([]);
+  // const [uploadedImages, setUploadedImages] = useState([]);
 
   useEffect(() => {
-    // const files2 = JSON.parse(localStorage.getItem('files2'));
-    // console.log("files2", files2);
-    if (location.state) {
+    if (location?.state) {
       let uploadedFiles = [];
       for (let i = 0; i < location.state.length; i++) {
-        uploadedFiles.push({ filename: location.state[i].name.split(".")[0], url: location.state[i].webkitRelativePath });
+        uploadedFiles.push(location.state[i]);
       }
       setFiles(uploadedFiles);
     }
-  }, []);
+  }, [location?.state]);
 
-
-  function generateDocument() {
+  async function generateDocument() {
     const data = {
       Volume: volume,
       Revenue: revenue,
@@ -82,36 +80,17 @@ function CMISample() {
       })),
     };
 
-    axios
-    // menuOptions[0].ulr
-      .get(location.state[0].webkitRelativePath, {
-        responseType: "arraybuffer",
-      })
-      .then((res) => {
-        const imageOpts = {
-          centered: false,
-          getImage: function (tagValue) {
-            axios
-              .get(tagValue, {
-                responseType: "arraybuffer",
-              })
-              .then((res) => res.data)
-              .catch((e) => console.log(e));
-          },
-          getSize: () => [150, 150],
-        };
-        const templatecontent = res.data;
-        const zip = new PizZip(templatecontent);
-        const doc = new Docxtemplater().attachModule(new ImageModule(imageOpts)).loadZip(zip);
+    const fileReader = new FileReader();
+    fileReader.readAsArrayBuffer(selectedFile);
 
-        doc.setData(data);
-        doc.render();
-        const output = doc.getZip().generate({ type: "blob", compression: "DEFLATE" });
-        FileSaver.saveAs(output, `${keyword}-codesandbox-output.docx`);
-      })
-      .catch((er) => {
-        console.log(er);
-      });
+    fileReader.onload = async () => {
+      const zip = new PizZip(fileReader.result);
+      const doc = new Docxtemplater().loadZip(zip);
+      doc.setData(data);
+      doc.render();
+      const updatedDocx = doc.getZip().generate({ type: "blob" });
+      FileSaver.saveAs(updatedDocx, `updated ${selectedFile.name.split(".")[0]}.docx`);
+    };
   }
 
   const deleteMenu = ({ type, item, subItem }) => {
@@ -176,9 +155,7 @@ function CMISample() {
   }
 
   function handleLogout() {
-    // remove user from local storage
     localStorage.removeItem("user");
-    // navigate to login page
     navigate("/login");
   }
 
@@ -198,11 +175,11 @@ function CMISample() {
             <InputLabel>Template*</InputLabel>
             <Autocomplete
               disablePortal
-              options={[...files.map((i) => i.filename), menuOptions[0].filename]}
-              value={files.find((i) => i.url === fileUrl)?.filename || "March 23 Sample_Report"}
+              options={files.map(item => item)}
+              value={selectedFile?.name.split(".")[0]  }
               sx={{ width: "400px" }}
-              onChange={(_, newValue) => setFileUrl(files.find((i) => i.filename === newValue)?.url)}
-              getOptionLabel={(option) => (typeof option === "number" ? option.toString() : option)}
+              onChange={(_, newValue) => setSelectedFile(files.find((i) => i.name.split(".")[0] === newValue.name.split(".")[0]))}
+              getOptionLabel={(option) => (option.name.split(".")[0])}
               renderInput={(params) => <TextField {...params} placeholder="Select Template" />}
             />
           </Box>
