@@ -39,6 +39,7 @@ function CMISample() {
   const [segments, setSegments] = useState([]);
   const [files, setFiles] = useState([]);
   const [selectedFile, setSelectedFile] = useState()
+  const [currentDate, setCurrentDate] = useState()
   // const [fileUrl, setFileUrl] = useState("");
   // const [imageUrl, setImageUrl] = useState("");
   const [segmentType, setSegmentType] = useState(segmentOptions[0]);
@@ -60,6 +61,10 @@ function CMISample() {
       }
       setFiles(uploadedFiles);
     }
+    const date = new Date();
+    const day = date.toLocaleDateString('en-US', { weekday: 'long' });
+    const currentDate = date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    setCurrentDate(currentDate)
   }, [location?.state]);
 
   async function generateDocument() {
@@ -89,7 +94,7 @@ function CMISample() {
       doc.setData(data);
       doc.render();
       const updatedDocx = doc.getZip().generate({ type: "blob" });
-      FileSaver.saveAs(updatedDocx, `updated ${selectedFile.name.split(".")[0]}.docx`);
+      FileSaver.saveAs(updatedDocx, `${currentDate} ${selectedFile.name.split(".")[0]}.docx`);
     };
   }
 
