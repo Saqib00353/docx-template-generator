@@ -28,6 +28,7 @@ import Docxtemplater from "docxtemplater";
 import PizZip from "pizzip";
 import FileSaver from "file-saver";
 import { useLocation, useNavigate } from "react-router-dom";
+// import File1 from "./../../public/SampleReport.docx"
 // import ImageModule from "docxtemplater-image-module-free";
 // import axios from "axios";
 
@@ -53,14 +54,47 @@ function CMISample() {
   const [keyword, setKeyword] = useState("");
   // const [uploadedImages, setUploadedImages] = useState([]);
 
+  // useEffect(()=>{
+  //   fetch('/SampleReport.docx')
+  //   .then(response => response.blob())
+  //   .then(blob => {
+  //     setFiles(prevFiles => [...prevFiles, { name: 'file1.docx', data: blob }])
+  //   });
+  
+  // fetch('/Metaverse Market, 2017 - 2032.docx')
+  //   .then(response => response.blob())
+  //   .then(blob => {
+  //     setFiles(prevFiles => [...prevFiles, { name: 'file2.docx', data: blob }])
+  //   });
+  // },[])
+
+  useEffect(() => {
+    Promise.all([
+      fetch('/SampleReport.docx').then(response => response.blob()),
+      fetch('/Metaverse Market, 2017 - 2032.docx').then(response => response.blob()),
+    ]).then(([blob1, blob2]) => {
+      setFiles(prevFiles => [
+        { name: 'file1.docx', data: blob1 },
+        { name: 'file2.docx', data: blob2 },
+      ]);
+    });
+  }, []);
+
   useEffect(() => {
     if (location?.state) {
       let uploadedFiles = [];
       for (let i = 0; i < location.state.length; i++) {
         uploadedFiles.push(location.state[i]);
       }
-      setFiles(uploadedFiles);
-    }
+      Promise.all([
+        fetch('/SampleReport.docx').then(response => response.blob()),
+        fetch('/Metaverse Market, 2017 - 2032.docx').then(response => response.blob()),
+      ]).then(([blob1, blob2]) => {
+        setFiles( [     { name: 'file1.docx', data: blob1 },
+        { name: 'file2.docx', data: blob2 },...uploadedFiles])})
+      
+      }
+    
     const date = new Date();
     const day = date.toLocaleDateString('en-US', { weekday: 'long' });
     const currentDate = date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });

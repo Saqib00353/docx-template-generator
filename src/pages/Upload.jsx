@@ -8,7 +8,7 @@ function Upload() {
   function handleFileSelect(e) {
     const { files } = e.target;
     localStorage.setItem('files', JSON.stringify(files));
-
+    
     setFiles(files);
   }
   return (

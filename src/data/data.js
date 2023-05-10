@@ -140,7 +140,7 @@ const isNordic = [
   },
 ];
 
-const segmentOptions = ["Main Menu", "Sub Menu"];
+const segmentOptions = ["Main Segment", "Sub Segment"];
 const menuOptions = [
   { filename: "March 23 Sample_Report", url: "/March 23 Sample_Report.docx" },
   { filename: "Global Metaverse Market, 2017 - 2032", url: "/SECOND_Sample_Global Metaverse Market, 2017 - 2032.docx" },
