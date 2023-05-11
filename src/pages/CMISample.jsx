@@ -208,7 +208,7 @@ function CMISample() {
   return (
     <Box p={4}>
       <Button variant="contained" component="span" onClick={handleLogout}>
-        Logout
+        Logout test
       </Button>
       <Typography component="h1" variant="h4" marginBottom={2} textAlign="center">
         CMI Sample Report Generator
