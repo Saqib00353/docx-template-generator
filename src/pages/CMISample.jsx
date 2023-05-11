@@ -69,7 +69,7 @@ function CMISample() {
   // },[])
 
   useEffect(() => {
-    if (!location?.state) {
+    // if (!location?.state) {
     Promise.all([
       fetch('/SampleReport.docx').then(response => response.blob()),
       fetch('/Metaverse Market, 2017 - 2032.docx').then(response => response.blob()),
@@ -81,7 +81,7 @@ function CMISample() {
       file1,file2
       ]);
     });
-  }
+  // }
   }, []);
 
   useEffect(() => {
