@@ -69,15 +69,19 @@ function CMISample() {
   // },[])
 
   useEffect(() => {
+    if (!location?.state) {
     Promise.all([
       fetch('/SampleReport.docx').then(response => response.blob()),
       fetch('/Metaverse Market, 2017 - 2032.docx').then(response => response.blob()),
     ]).then(([blob1, blob2]) => {
+      const file1 = new File([blob1], 'SampleReport.docx')
+      const file2 = new File([blob2], 'Metaverse Market, 2017 - 2032.docx')
+
       setFiles(prevFiles => [
-        { name: 'file1.docx', data: blob1 },
-        { name: 'file2.docx', data: blob2 },
+      file1,file2
       ]);
     });
+  }
   }, []);
 
   useEffect(() => {
@@ -90,8 +94,9 @@ function CMISample() {
         fetch('/SampleReport.docx').then(response => response.blob()),
         fetch('/Metaverse Market, 2017 - 2032.docx').then(response => response.blob()),
       ]).then(([blob1, blob2]) => {
-        setFiles( [     { name: 'file1.docx', data: blob1 },
-        { name: 'file2.docx', data: blob2 },...uploadedFiles])})
+        const file1 = new File([blob1], 'SampleReport.docx')
+        const file2 = new File([blob2], 'Metaverse Market, 2017 - 2032.docx')
+        setFiles( [      file1,file2,...uploadedFiles])})
       
       }
     
